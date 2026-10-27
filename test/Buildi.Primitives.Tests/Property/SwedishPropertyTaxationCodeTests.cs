@@ -2,6 +2,7 @@ using Buildi.Primitives.Property;
 
 namespace Buildi.Primitives.Tests.Property;
 
+[Collection("CultureSensitive")]
 public class SwedishPropertyTaxationCodeTests
 {
     [Theory]

@@ -2,6 +2,7 @@ using Buildi.Primitives.Geography;
 
 namespace Buildi.Primitives.Tests.Geography;
 
+[Collection("CultureSensitive")]
 public class SwedishMunicipalityTests
 {
     [Theory]

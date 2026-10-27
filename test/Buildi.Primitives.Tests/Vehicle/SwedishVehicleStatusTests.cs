@@ -2,6 +2,7 @@ using Buildi.Primitives.Vehicle;
 
 namespace Buildi.Primitives.Tests.Vehicle;
 
+[Collection("CultureSensitive")]
 public class SwedishVehicleStatusTests
 {
     [Fact]

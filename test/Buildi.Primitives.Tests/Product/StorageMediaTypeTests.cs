@@ -2,6 +2,7 @@ using Buildi.Primitives.Product;
 
 namespace Buildi.Primitives.Tests.Product;
 
+[Collection("CultureSensitive")]
 public class StorageMediaTypeTests
 {
     [Fact]

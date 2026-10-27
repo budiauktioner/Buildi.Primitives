@@ -2,6 +2,7 @@ using Buildi.Primitives.Organization;
 
 namespace Buildi.Primitives.Tests.Organization;
 
+[Collection("CultureSensitive")]
 public class ElfCodeTests
 {
     [Theory]
