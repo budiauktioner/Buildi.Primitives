@@ -56,6 +56,7 @@ public sealed class TextScanner
 
         var regs = ScanType(text, options, TextCandidateCategory.Vehicle, SwedishVehicleRegistrationNumber.FindCandidatesInText);
         var vins = ScanType(text, options, TextCandidateCategory.Vehicle, VehicleIdentificationNumber.FindCandidatesInText);
+        var watercraftIdentificationNumbers = ScanType(text, options, TextCandidateCategory.Vehicle, WatercraftIdentificationNumber.FindCandidatesInText);
         var operatingHours = ScanType(text, options, TextCandidateCategory.Vehicle, OperatingHours.FindCandidatesInText);
         var boltPatterns = ScanType(text, options, TextCandidateCategory.Vehicle, BoltPattern.FindCandidatesInText);
         var wheelRimDimensions = ScanType(text, options, TextCandidateCategory.Vehicle, WheelRimDimension.FindCandidatesInText);
@@ -127,7 +128,8 @@ public sealed class TextScanner
             rotationalSpeeds, soundLevels,
             euroEmissionClasses, swedishEcoClassifications, tireDimensions,
             colors, screenResolutions, screenSizes,
-            drivingLicenseCategories, swishNumbers);
+            drivingLicenseCategories, swishNumbers,
+            watercraftIdentificationNumbers);
     }
 
     private static IReadOnlyList<TextCandidate<T>> ScanType<T>(

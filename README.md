@@ -459,6 +459,7 @@ All types share a consistent API:
 | [`BoltPattern`](#bolt-pattern) | Bultcirkelmått | Wheel bolt pattern |
 | [`BoatCeDesignCategory`](#boat-ce-design-category) | Båt CE-konstruktionskategori | EU Recreational Craft design category A/B/C/D (ISO 12217) with wave/wind ratings |
 | [`BoatHullMaterial`](#boat-hull-material) | Båt skrovmaterial | Boat hull material (Glasfiber/Aluminium/Stål/Trä/Plast/Kolfiber/Hypalon) |
+| [`WatercraftIdentificationNumber`](#watercraft-identification-number) | Skrovnummer (WIN/CIN/HIN) | ISO 10087 craft identification number and 12-character US HIN, validated segment by segment |
 | [`SwedishEcoVehicleClassification`](#swedish-eco-vehicle-classification) | Miljöbilsklassning | Swedish miljöbil/klimatbonusbil classification with year ranges |
 | [`BodyType`](#body-type) | Karosstyp | Vehicle body style (Sedan, Kombi, SUV, Off-road/Terrängbil, Coupé, Cabriolet, Van, Pickup, Truck/Lätt lastbil, Trailer, Motorhome, Tractor, Dumper, Tipper, …) |
 | [`SuspensionType`](#suspension-type) | Fjädring | Suspension/damping technology (Coil spring, Air, Air/Air, Air/Leaf, Hydropneumatic, MacPherson, Multi-link, …) |
@@ -592,7 +593,7 @@ Console.WriteLine(valid.IsValid);     // true
 Console.WriteLine(valid.Issues.Count); // 0
 ```
 
-Types with `Validate()`: `SwedishBankClearingNumber`, `SwedishBankAccount`, `SwedishBankgiroNumber`, `SwedishPostgiroNumber`, `SwedishOcrReferenceNumber`, `Iban`, `Bic`, `SwedishOrganizationNumber`, `EuVatNumber`, `SwedishPersonalIdentityNumber`, `SwedishCoordinationNumber`, `SwedishVehicleRegistrationNumber`, `VehicleIdentificationNumber`, `EmailAddress`.
+Types with `Validate()`: `SwedishBankClearingNumber`, `SwedishBankAccount`, `SwedishBankgiroNumber`, `SwedishPostgiroNumber`, `SwedishOcrReferenceNumber`, `Iban`, `Bic`, `SwedishOrganizationNumber`, `EuVatNumber`, `SwedishPersonalIdentityNumber`, `SwedishCoordinationNumber`, `SwedishVehicleRegistrationNumber`, `VehicleIdentificationNumber`, `WatercraftIdentificationNumber`, `EmailAddress`.
 
 ## Usage
 
@@ -2919,6 +2920,46 @@ if (BoatHullMaterial.TryParse("Glasfiber", out var m))
 BoatHullMaterial.IsValid("RIB");                // true
 BoatHullMaterial.IsValid("Mahogny");            // true
 BoatHullMaterial.Normalize("Aluminium");        // "Aluminum"
+```
+
+#### Watercraft identification number
+
+The hull marking of a small craft (*skrovnummer*). Two formats are accepted:
+
+- The ISO 10087 craft identification number - CIN, which Transportstyrelsen now calls WIN - of 14 characters plus a hyphen: a two-letter ISO 3166-1 country code for the country where the manufacturer is established, a hyphen, a three-character manufacturer code, a five-character serial number, a month letter (`A` January to `L` December), the last digit of the production year and the last two digits of the model year.
+- The 12-character US hull identification number (HIN) required since August 1984 by 33 CFR 181.25, which has the same layout without the country code.
+
+Each segment is validated on its own: the manufacturer code may not contain the digits `0` or `1` in an ISO number, and the serial number may not contain the letters `I`, `O` or `Q` - so `I` is still valid in a manufacturer code and as the September month code. Input may be lowercase and contain whitespace, and an ISO number may be written with or without its hyphen. A hyphen anywhere else, or any other punctuation, is rejected. `Normalize` returns the number without separators (14 characters for ISO, 12 for a US HIN); `Format` and `ToString()` return it as marked on the hull, with the hyphen after an ISO country code.
+
+There is no check digit, so a parsed value is structurally valid only: it does not prove that the manufacturer code is registered or that the number belongs to a particular craft. The years are exposed as the digits that are encoded, since the century cannot be derived from them. Older US markings from before August 1984 are not accepted.
+
+Tests: [WatercraftIdentificationNumberTests.cs](test/Buildi.Primitives.Tests/Vehicle/WatercraftIdentificationNumberTests.cs)
+
+- [ISO 10087:2022](https://www.iso.org/standard/82383.html) - Small craft - Craft identification - Coding system
+- [33 CFR 181.25](https://www.ecfr.gov/current/title-33/chapter-I/subchapter-S/part-181/subpart-C/section-181.25) - US hull identification number format
+- [Transportstyrelsen - Instruktionsbok, tillverkarskylt och WIN](https://www.transportstyrelsen.se/sv/sjofart/fritidsbatar/lagar-och-regler-for-fritidsbatar/cemarkning/bygga-om-tillverka-distribuera-och-importera/tillverka/instruktionsbok-tillverkarskylt-och-win/)
+
+```csharp
+if (WatercraftIdentificationNumber.TryParse("nl hxab7a33g506", out var win))
+{
+    Console.WriteLine(win!.Scheme);               // Iso10087
+    Console.WriteLine(win.Value);                 // NLHXAB7A33G506
+    Console.WriteLine(win.Formatted);             // NL-HXAB7A33G506
+    Console.WriteLine(win.CountryCode);           // NL
+    Console.WriteLine(win.ManufacturerCode);      // HXA
+    Console.WriteLine(win.SerialNumber);          // B7A33
+    Console.WriteLine(win.ProductionMonthCode);   // G
+    Console.WriteLine(win.ProductionMonth);       // 7
+    Console.WriteLine(win.ProductionYearDigit);   // 5
+    Console.WriteLine(win.ModelYearDigits);       // 06
+    Console.WriteLine(win.ToMaskedString());      // NL-HXA*********
+}
+
+WatercraftIdentificationNumber.IsValid("ZZZ00001A020");       // true  (US HIN)
+WatercraftIdentificationNumber.IsValid("NL-HXA-B7A33G506");   // false (misplaced hyphen)
+WatercraftIdentificationNumber.Format("nlhxab7a33g506");      // "NL-HXAB7A33G506"
+WatercraftIdentificationNumber.Normalize("NL-HXAB7A33G506");  // "NLHXAB7A33G506"
+WatercraftIdentificationNumber.Validate("NL-HXAB7A3QG506").Issues[0].Reason; // InvalidSerialNumber
 ```
 
 #### Swedish eco-vehicle classification

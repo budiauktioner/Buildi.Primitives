@@ -38,4 +38,10 @@ public enum ValidationErrorReason
     MissingAtSign,
     InvalidLocalPart,
     InvalidDomain,
+
+    // --- Watercraft identification ---
+    InvalidManufacturerCode,
+    InvalidSerialNumber,
+    InvalidMonthCode,
+    InvalidYearDigits,
 }

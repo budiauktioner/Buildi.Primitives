@@ -397,7 +397,7 @@ public void Validate_IsValid_MatchesIsValid(string? input)
 
 ### Types with `Validate`
 
-`SwedishBankClearingNumber`, `SwedishBankAccount`, `SwedishVehicleRegistrationNumber`, `SwedishOrganizationNumber`, `Iban`, `SwedishBankgiroNumber`, `SwedishPostgiroNumber`, `SwedishOcrReferenceNumber`, `SwedishPersonalIdentityNumber`, `SwedishCoordinationNumber`, `Bic`, `EuVatNumber`, `EmailAddress`, `VehicleIdentificationNumber`.
+`SwedishBankClearingNumber`, `SwedishBankAccount`, `SwedishVehicleRegistrationNumber`, `SwedishOrganizationNumber`, `Iban`, `SwedishBankgiroNumber`, `SwedishPostgiroNumber`, `SwedishOcrReferenceNumber`, `SwedishPersonalIdentityNumber`, `SwedishCoordinationNumber`, `Bic`, `EuVatNumber`, `EmailAddress`, `VehicleIdentificationNumber`, `WatercraftIdentificationNumber`.
 
 ## Text scanning conventions
 

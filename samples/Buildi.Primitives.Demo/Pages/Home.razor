@@ -1123,6 +1123,15 @@
             s => VehicleIdentificationNumber.TryParse(s, out var v) ? Metadata($"WMI: {v!.Wmi}", $"ModelYear: {v.ModelYearCode}", v.HasValidCheckDigit ? "CheckDigit: Valid" : "CheckDigit: N/A") : null,
             TypeMeta: VehicleIdentificationNumber.TypeInfo),
 
+        new(nameof(WatercraftIdentificationNumber), "Vehicle", "NL-HXAB7A33G506",
+            s => WatercraftIdentificationNumber.IsValid(s),
+            s => WatercraftIdentificationNumber.Format(s),
+            s => WatercraftIdentificationNumber.Normalize(s),
+            s => WatercraftIdentificationNumber.IsNormalized(s),
+            s => WatercraftIdentificationNumber.TryParse(s, out var v) ? v!.ToMaskedString() : null,
+            s => WatercraftIdentificationNumber.TryParse(s, out var v) ? Metadata($"Scheme: {v!.Scheme}", v.CountryCode is { } cc ? $"Country: {cc}" : null, $"Manufacturer: {v.ManufacturerCode}", $"Serial: {v.SerialNumber}", $"Month: {v.ProductionMonth}", $"YearDigit: {v.ProductionYearDigit}", $"ModelYear: {v.ModelYearDigits}") : null,
+            TypeMeta: WatercraftIdentificationNumber.TypeInfo),
+
         new(nameof(EuroEmissionClass), "Vehicle", "Euro 6",
             s => EuroEmissionClass.IsValid(s),
             s => EuroEmissionClass.Format(s),

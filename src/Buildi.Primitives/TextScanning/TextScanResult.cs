@@ -100,6 +100,7 @@ public sealed class TextScanResult
     public IReadOnlyList<TextCandidate<ScreenSize>> ScreenSizes { get; }
     public IReadOnlyList<TextCandidate<SwedishDrivingLicenseCategory>> DrivingLicenseCategories { get; }
     public IReadOnlyList<TextCandidate<SwedishSwishNumber>> SwedishSwishNumbers { get; }
+    public IReadOnlyList<TextCandidate<WatercraftIdentificationNumber>> WatercraftIdentificationNumbers { get; }
 
     /// <summary>
     /// Convenience accessor: the subset of <see cref="Addresses"/> that qualify as Swedish
@@ -175,7 +176,8 @@ public sealed class TextScanResult
         IReadOnlyList<TextCandidate<ScreenResolution>> screenResolutions,
         IReadOnlyList<TextCandidate<ScreenSize>> screenSizes,
         IReadOnlyList<TextCandidate<SwedishDrivingLicenseCategory>> drivingLicenseCategories,
-        IReadOnlyList<TextCandidate<SwedishSwishNumber>> swishNumbers)
+        IReadOnlyList<TextCandidate<SwedishSwishNumber>> swishNumbers,
+        IReadOnlyList<TextCandidate<WatercraftIdentificationNumber>> watercraftIdentificationNumbers)
     {
         Emails = emails;
         PhoneNumbers = phoneNumbers;
@@ -243,6 +245,7 @@ public sealed class TextScanResult
         ScreenSizes = screenSizes;
         DrivingLicenseCategories = drivingLicenseCategories;
         SwedishSwishNumbers = swishNumbers;
+        WatercraftIdentificationNumbers = watercraftIdentificationNumbers;
 
         var swedish = new List<TextCandidate<SwedishAddress>>();
         foreach (var a in addresses)
@@ -330,6 +333,7 @@ public sealed class TextScanResult
         AddRange(all, screenSizes);
         AddRange(all, drivingLicenseCategories);
         AddRange(all, swishNumbers);
+        AddRange(all, watercraftIdentificationNumbers);
         all.Sort((a, b) => a.StartIndex.CompareTo(b.StartIndex));
         All = all;
         ResolvedCandidates = Resolve(all);
