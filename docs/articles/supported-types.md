@@ -188,6 +188,7 @@ See the [README](../../README.md) for full usage examples and detailed documenta
 | Emission Rate | Utsläpp | Vehicle emission rate in g/km or mg/km | `Buildi.Primitives.Vehicle.EmissionRate` |
 | Boat CE Design Category | Båt CE-konstruktionskategori | EU Recreational Craft design category A/B/C/D (ISO 12217) with wave/wind ratings | `Buildi.Primitives.Vehicle.BoatCeDesignCategory` |
 | Boat Hull Material | Båt skrovmaterial | Boat hull material (Glasfiber/Aluminium/Stål/Trä/Plast/Kolfiber/Hypalon) | `Buildi.Primitives.Vehicle.BoatHullMaterial` |
+| Watercraft Identification Number | Skrovnummer (WIN/CIN/HIN) | ISO 10087 craft identification number and 12-character US HIN, validated segment by segment | `Buildi.Primitives.Vehicle.WatercraftIdentificationNumber` |
 | Swedish Eco-Vehicle Classification | Miljöbilsklassning | Swedish miljöbil/klimatbonusbil classification with year ranges | `Buildi.Primitives.Vehicle.SwedishEcoVehicleClassification` |
 | Body Type | Karosstyp | Vehicle body style (Sedan, Kombi, SUV, Off-road/Terrängbil, Coupé, Cabriolet, Van, Pickup, Truck/Lätt lastbil, Trailer, Motorhome, Tractor, Dumper, Tipper, …) | `Buildi.Primitives.Vehicle.BodyType` |
 | Suspension Type | Fjädring | Suspension/damping technology (Coil spring, Air, Air/Air, Air/Leaf, Hydropneumatic, MacPherson, Multi-link, …) | `Buildi.Primitives.Vehicle.SuspensionType` |

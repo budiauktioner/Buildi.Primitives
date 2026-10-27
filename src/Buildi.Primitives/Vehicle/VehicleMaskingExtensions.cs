@@ -30,6 +30,16 @@ public static class VehicleMaskingExtensions
     }
 
     /// <summary>
+    /// Returns a masked watercraft identification number showing only the country and manufacturer
+    /// codes, e.g. <c>NL-HXAB7A33G506</c> → <c>NL-HXA*********</c> and <c>ZZZ00001A020</c> → <c>ZZZ*********</c>.
+    /// </summary>
+    public static string ToMaskedString(this WatercraftIdentificationNumber win)
+    {
+        var prefix = win.CountryCode is null ? win.ManufacturerCode : $"{win.CountryCode}-{win.ManufacturerCode}";
+        return $"{prefix}{new string(MaskChar, win.Formatted.Length - prefix.Length)}";
+    }
+
+    /// <summary>
     /// Returns a masked operating hours reading, e.g. <c>1234 h</c> → <c>**** h</c>.
     /// </summary>
     public static string ToMaskedString(this OperatingHours hours) =>

@@ -167,6 +167,14 @@ public class SampleOrganizationTests
     }
 
     [Fact]
+    public void PerType_WatercraftIdentificationNumberSamples_AreAccessible()
+    {
+        Assert.NotNull(SampleData.Vehicle.WatercraftIdentificationNumberSampleData.Iso10087Example);
+        Assert.NotNull(SampleData.Vehicle.WatercraftIdentificationNumberSampleData.UnitedStatesExample);
+        Assert.True(SampleData.Vehicle.WatercraftIdentificationNumberSampleData.All.Count >= 2);
+    }
+
+    [Fact]
     public void Myndigheter_AreAccessible()
     {
         Assert.NotNull(SampleOrganizations.Skatteverket);
