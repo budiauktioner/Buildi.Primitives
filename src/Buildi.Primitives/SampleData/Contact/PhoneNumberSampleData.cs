@@ -16,7 +16,7 @@ public static class PhoneNumberSampleData
     public static Primitives.Contact.PhoneNumber KooperativaForbundet { get; } = Primitives.Contact.PhoneNumber.Parse("+46107400000");
 
     public static Primitives.Contact.PhoneNumber SwedishMobileTest { get; } = Primitives.Contact.PhoneNumber.Parse("+46701740605");
-    public static Primitives.Contact.PhoneNumber SwedishFixedTest { get; } = Primitives.Contact.PhoneNumber.Parse("+4681234567");
+    public static Primitives.Contact.PhoneNumber SwedishFixedTest { get; } = Primitives.Contact.PhoneNumber.Parse("+46846500400");
 
     public static IReadOnlyList<Primitives.Contact.PhoneNumber> All { get; } =
     [

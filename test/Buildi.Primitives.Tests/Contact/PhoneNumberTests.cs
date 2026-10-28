@@ -66,11 +66,57 @@ public class PhoneNumberTests
         Assert.Equal(expected, phone.ToInternationalString());
     }
 
-    [Fact]
-    public void ToLocalString_Swedish_ReturnsLocalFormat()
+    [Theory]
+    [InlineData("0701740635", "070-174 06 35")]
+    [InlineData("+46701740635", "070-174 06 35")]
+    [InlineData("0313900642", "031-390 06 42")]
+    [InlineData("0406280473", "040-628 04 73")]
+    [InlineData("0846500456", "08-465 004 56")]
+    [InlineData("0980319247", "0980-31 92 47")]
+    [InlineData("08012345", "08-01 23 45")]
+    [InlineData("080123456", "08-012 34 56")]
+    [InlineData("031012345", "031-01 23 45")]
+    [InlineData("018012345", "018-01 23 45")]
+    [InlineData("098001234", "0980-012 34")]
+    [InlineData("0901120000", "090-112 00 00")]
+    [InlineData("0900012345", "0900-01 23 45")]
+    [InlineData("0100123456", "010-012 34 56")]
+    [InlineData("0778123456", "077-812 34 56")]
+    public void Formatted_Swedish_UsesDestinationCodeFromNumberingPlan(string input, string expected)
     {
-        var phone = PhoneNumber.Parse("0701740633");
-        Assert.StartsWith("0701-", phone.ToLocalString());
+        var phone = PhoneNumber.Parse(input);
+        Assert.Equal(expected, phone.Formatted);
+        Assert.Equal(expected, phone.ToLocalString());
+    }
+
+    [Theory]
+    [InlineData("0701740635", "+46 70 174 06 35")]
+    [InlineData("0846500456", "+46 8 465 004 56")]
+    [InlineData("0313900642", "+46 31 390 06 42")]
+    [InlineData("0980319247", "+46 980 31 92 47")]
+    public void Format_Swedish_WithOtherDefaultCallingCode_UsesDestinationCodeFromNumberingPlan(string input, string expected)
+    {
+        var phone = PhoneNumber.Parse(input);
+        Assert.Equal(expected, phone.ToLocalString(PhoneCallingCode.Norway));
+        Assert.Equal(expected, PhoneNumber.Format(phone.ToE164String(), "47"));
+    }
+
+    public static TheoryData<string, string> PtsReservedNumbersWithExpectedFormat()
+    {
+        var data = new TheoryData<string, string>();
+        foreach (var n in PhoneNumberTestData.Mobile) data.Add(n, $"070-174 06 {n[^2..]}");
+        foreach (var n in PhoneNumberTestData.LandlineGothenburg) data.Add(n, $"031-390 06 {n[^2..]}");
+        foreach (var n in PhoneNumberTestData.LandlineMalmo) data.Add(n, $"040-628 04 {n[^2..]}");
+        foreach (var n in PhoneNumberTestData.LandlineStockholm) data.Add(n, $"08-465 004 {n[^2..]}");
+        foreach (var n in PhoneNumberTestData.LandlineKiruna) data.Add(n, $"0980-31 92 {n[^2..]}");
+        return data;
+    }
+
+    [Theory]
+    [MemberData(nameof(PtsReservedNumbersWithExpectedFormat))]
+    public void Formatted_PtsReservedNumbers_ReturnsExpected(string input, string expected)
+    {
+        Assert.Equal(expected, PhoneNumber.Parse(input).Formatted);
     }
 
     [Fact]
@@ -322,7 +368,7 @@ public class PhoneNumberTests
     {
         var formatted = PhoneNumber.Format("0701740633", "46");
         Assert.NotNull(formatted);
-        Assert.StartsWith("0701-", formatted);
+        Assert.Equal("070-174 06 33", formatted);
     }
 
     [Fact]
@@ -347,7 +393,7 @@ public class PhoneNumberTests
     {
         var phone = PhoneNumber.Parse("0701740633");
         var local = phone.ToLocalString(Country.Sweden);
-        Assert.StartsWith("0701-", local);
+        Assert.Equal("070-174 06 33", local);
     }
 
     [Fact]

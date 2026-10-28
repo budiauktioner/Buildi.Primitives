@@ -20,7 +20,7 @@ public static class PhoneNumberTestData
     /// <summary>Landline Malmö: 040-628 04 00 through 040-628 04 99 (100 numbers).</summary>
     public static IEnumerable<string> LandlineMalmo => GenerateRange("04062804", 0, 99);
 
-    /// <summary>Landline Stockholm: 08-4650 04 00 through 08-4650 04 99 (100 numbers).</summary>
+    /// <summary>Landline Stockholm: 08-465 004 00 through 08-465 004 99 (100 numbers).</summary>
     public static IEnumerable<string> LandlineStockholm => GenerateRange("08465004", 0, 99);
 
     /// <summary>Landline Kiruna: 0980-31 92 00 through 0980-31 92 99 (100 numbers).</summary>

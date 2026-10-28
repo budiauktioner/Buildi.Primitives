@@ -100,7 +100,9 @@ public sealed class PhoneNumber : IEquatable<PhoneNumber>, IComparable<PhoneNumb
     }
 
     /// <summary>
-    /// Human-readable display form. Swedish numbers use local format, others use spaced international format.
+    /// Human-readable display form. Swedish numbers use local format with the area code from PTS's
+    /// numbering plan, e.g. <c>070-174 06 33</c>, <c>08-465 004 56</c>, <c>031-390 06 42</c> or
+    /// <c>0980-31 92 47</c>. Others use spaced international format, e.g. <c>+44 20 7946 0958</c>.
     /// </summary>
     public string Formatted => IsSwedish ? ToLocalString() : ToDisplayInternationalString();
 
@@ -277,7 +279,8 @@ public sealed class PhoneNumber : IEquatable<PhoneNumber>, IComparable<PhoneNumb
     /// <summary>
     /// Returns the phone number in display format using the specified <paramref name="defaultCallingCode"/>
     /// for numbers without an explicit country prefix. Numbers matching the default calling code are
-    /// shown in local format (e.g. <c>070-174 06 33</c>), others in international format (e.g. <c>+44207946 0958</c>).
+    /// shown in local format (e.g. <c>070-174 06 33</c>), others in international format (e.g. <c>+44 20 7946 0958</c>
+    /// or <c>+46 8 465 004 56</c>).
     /// Returns <see langword="null"/> when the input is invalid or empty.
     /// When <paramref name="fallbackToTrimmedInputWhenInvalid"/> is <see langword="true"/>, returns the trimmed original input instead of <see langword="null"/> for non-empty invalid input.
     /// </summary>
@@ -369,7 +372,7 @@ public sealed class PhoneNumber : IEquatable<PhoneNumber>, IComparable<PhoneNumb
         var subscriberDigits = Digits[(2 + CountryCallingCode.Value.Length)..];
 
         if (IsSwedish)
-            return FormatSwedishLocal("0" + subscriberDigits);
+            return FormatSwedishLocal(subscriberDigits);
 
         return "0" + subscriberDigits;
     }
@@ -408,11 +411,14 @@ public sealed class PhoneNumber : IEquatable<PhoneNumber>, IComparable<PhoneNumb
     private string ToDisplayInternationalString()
     {
         var subscriberDigits = Digits[(2 + CountryCallingCode.Value.Length)..];
+        if (IsSwedish)
+            return FormatSwedishInternational(subscriberDigits);
         return "+" + CountryCallingCode.Value + " " + FormatInternationalSubscriberDigits(CountryCallingCode.Value, subscriberDigits);
     }
 
     /// <summary>
-    /// Returns the phone number in display format, for example <c>+46 70 123 45 67</c>.
+    /// Returns the phone number in display format (same as <see cref="Formatted"/>), for example
+    /// <c>070-174 06 33</c> or <c>08-465 004 56</c> for Swedish numbers and <c>+44 20 7946 0958</c> for others.
     /// </summary>
     public override string ToString() => Formatted;
 
@@ -511,28 +517,63 @@ public sealed class PhoneNumber : IEquatable<PhoneNumber>, IComparable<PhoneNumb
         return results;
     }
 
-    private static string FormatSwedishLocal(string number)
+    // Two-digit national destination codes (NDCs) from PTS's numbering plan. 8 (Stockholm) is the
+    // only one-digit NDC; every NDC not listed here is three digits.
+    private static readonly HashSet<string> SwedishTwoDigitDestinationCodes =
+    [
+        "10", "11", "13", "16", "18", "19",
+        "20", "21", "23", "26",
+        "31", "33", "35", "36",
+        "40", "42", "44", "46",
+        "54",
+        "60", "63",
+        "70", "71", "72", "73", "74", "75", "76", "77", "79",
+        "90", "99"
+    ];
+
+    // 900 (premium rate) is the only three-digit NDC that starts with a two-digit NDC (90, Umeå).
+    private static readonly HashSet<string> SwedishThreeDigitDestinationCodesOverridingTwoDigit = ["900"];
+
+    private static int SwedishDestinationCodeLength(string nationalSignificantNumber)
     {
-        var digits = number.TrimStart('0');
+        if (nationalSignificantNumber.StartsWith('8')) return 1;
+        if (nationalSignificantNumber.Length >= 3 && SwedishThreeDigitDestinationCodesOverridingTwoDigit.Contains(nationalSignificantNumber[..3])) return 3;
+        if (SwedishTwoDigitDestinationCodes.Contains(nationalSignificantNumber[..2])) return 2;
+        return 3;
+    }
 
-        if (digits.Length == 9)
-            return $"0{digits.Substring(0, 3)}-{digits.Substring(3, 2)} {digits.Substring(5, 2)} {digits.Substring(7, 2)}";
+    /// <summary>
+    /// Groups a Swedish subscriber number as recommended by Svenska skrivregler:
+    /// <c>NN NN</c>, <c>NNN NN</c>, <c>NN NN NN</c>, <c>NNN NN NN</c> and <c>NNN NNN NN</c>.
+    /// </summary>
+    private static string GroupSwedishSubscriberNumber(string subscriber)
+    {
+        if (subscriber.Length == 8)
+            return $"{subscriber[..3]} {subscriber.Substring(3, 3)} {subscriber[6..]}";
 
-        if (digits.Length == 7)
-        {
-            var areaCode = digits.Substring(0, 1);
-            var rest = digits.Substring(1);
-            return $"0{areaCode}-{rest.Substring(0, 2)} {rest.Substring(2, 2)} {rest.Substring(4, 2)}";
-        }
+        var firstGroupLength = subscriber.Length % 2 == 1 ? 3 : 2;
+        var groups = new List<string> { subscriber[..firstGroupLength] };
+        for (var i = firstGroupLength; i < subscriber.Length; i += 2)
+            groups.Add(subscriber.Substring(i, 2));
+        return string.Join(' ', groups);
+    }
 
-        if (digits.Length == 8)
-        {
-            var areaCode = digits.Substring(0, 1);
-            var rest = digits.Substring(1);
-            return $"0{areaCode}-{rest.Substring(0, 2)} {rest.Substring(2, 2)} {rest.Substring(4, 3)}";
-        }
+    private static (string DestinationCode, string Subscriber) SplitSwedishNationalNumber(string nationalSignificantNumber)
+    {
+        var length = SwedishDestinationCodeLength(nationalSignificantNumber);
+        return (nationalSignificantNumber[..length], nationalSignificantNumber[length..]);
+    }
 
-        return number;
+    private static string FormatSwedishLocal(string nationalSignificantNumber)
+    {
+        var (destinationCode, subscriber) = SplitSwedishNationalNumber(nationalSignificantNumber);
+        return $"0{destinationCode}-{GroupSwedishSubscriberNumber(subscriber)}";
+    }
+
+    private static string FormatSwedishInternational(string nationalSignificantNumber)
+    {
+        var (destinationCode, subscriber) = SplitSwedishNationalNumber(nationalSignificantNumber);
+        return $"+46 {destinationCode} {GroupSwedishSubscriberNumber(subscriber)}";
     }
 
     public bool Equals(PhoneNumber? other) => other is not null && Digits == other.Digits;

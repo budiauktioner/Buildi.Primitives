@@ -135,7 +135,7 @@ public class SwedishSwishNumberTests
     [Theory]
     [InlineData("1236652895", "123-665 28 95")]
     [InlineData("9020033", "902 00 33")]
-    [InlineData("0701234567", "0701-23 45 67")]
+    [InlineData("0701740635", "070-174 06 35")]
     [InlineData(null, null)]
     [InlineData("", null)]
     [InlineData("invalid", null)]

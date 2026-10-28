@@ -21,6 +21,17 @@ public class ContactMaskingExtensionsTests
         Assert.DoesNotContain("33", masked);
     }
 
+    [Theory]
+    [InlineData("0701740633", 2, "070-*** ** 33")]
+    [InlineData("0701740633", 0, "070-*** ** **")]
+    [InlineData("0701740633", 4, "070-*** 06 33")]
+    [InlineData("0846500456", 2, "08-*** *** 56")]
+    [InlineData("0980319247", 2, "0980-** ** 47")]
+    public void Phone_Swedish_MasksSubscriberDigitsAfterAreaCode(string input, int visibleDigitsAtEnd, string expected)
+    {
+        Assert.Equal(expected, PhoneNumber.Parse(input).ToMaskedString(visibleDigitsAtEnd));
+    }
+
     [Fact]
     public void Phone_International_MasksMiddleDigits()
     {

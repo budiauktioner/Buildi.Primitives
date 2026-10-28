@@ -2150,14 +2150,14 @@ PhoneCallingCode.UnitedKingdom; // +44
 
 // Use with PhoneNumber parsing and formatting
 var phone = PhoneNumber.Parse("0701740633", PhoneCallingCode.Sweden);
-PhoneNumber.Format("0701740633", PhoneCallingCode.Sweden); // "0701-74 06 33"
+PhoneNumber.Format("0701740633", PhoneCallingCode.Sweden); // "070-174 06 33"
 ```
 
 #### Phone number
 
 Phone numbers (*telefonnummer*) are normalized to international digit format with a `00` prefix (e.g. `0046701740633`). Swedish numbers are identified by country code 46 and regulated by PTS (Post- och telestyrelsen). Both local Swedish formats and international numbers are accepted. Use `ToE164String()` for the standard E.164 representation with `+` prefix (e.g. `+46701740633`). `ToInternationalString()` is a convenience alias that returns the same E.164 output. The `Country` property resolves the country from the calling code. When parsing numbers without an explicit country prefix (`+` or `00`), the default calling code is `46` (Sweden) - use the `defaultCallingCode` parameter to override for other countries.
 
-The normalized form is `00` + country code + subscriber digits (e.g., `0046701740633`). The parser strips spaces, dashes, dots, and parentheses, and recognizes `+`, `00`, and bare country-code prefixes. Swedish mobile numbers begin with `07x` in local format (subscriber digits 7–9 characters). The calling code is extracted and mapped to a `Country` instance. When no international prefix is present, the default calling code (`46` for Sweden) is applied. `ToE164String()` returns `+`-prefixed E.164 form; `ToLocalString()` returns Swedish local format (e.g., `0701-74 06 33`) for Swedish numbers.
+The normalized form is `00` + country code + subscriber digits (e.g., `0046701740633`). The parser strips spaces, dashes, dots, and parentheses, and recognizes `+`, `00`, and bare country-code prefixes. Swedish mobile numbers begin with `07x` in local format (subscriber digits 7–9 characters). The calling code is extracted and mapped to a `Country` instance. When no international prefix is present, the default calling code (`46` for Sweden) is applied. `ToE164String()` returns `+`-prefixed E.164 form; `ToLocalString()` returns Swedish local format (e.g., `070-174 06 33`) for Swedish numbers.
 
 Tests: [PhoneNumberTests.cs](test/Buildi.Primitives.Tests/Contact/PhoneNumberTests.cs)
 
@@ -2175,7 +2175,7 @@ if (PhoneNumber.TryParse("070-174 06 33", out var phone))
     Console.WriteLine(phone.CountryCallingCode.Value); // 46
     Console.WriteLine(phone.Country!.EnglishName);     // Sweden
     Console.WriteLine(phone.IsSwedishTestPhoneNumber); // false
-    Console.WriteLine(phone.ToLocalString());          // 0701-74 06 33
+    Console.WriteLine(phone.ToLocalString());          // 070-174 06 33
     Console.WriteLine(phone.ToE164String());           // +46701740633 (same as ToInternationalString())
 }
 
@@ -2194,7 +2194,7 @@ Console.WriteLine(noPhone.Country!.EnglishName);       // Norway
 Console.WriteLine(noPhone.Digits);                     // 0047211234567
 
 PhoneNumber.IsValid("0701740633");                // true
-PhoneNumber.Format("0701740633");                 // "0701-74 06 33"
+PhoneNumber.Format("0701740633");                 // "070-174 06 33"
 PhoneNumber.Normalize("070-174 06 33");           // "0046701740633"
 PhoneNumber.Normalize("070-174 06 33", "47");     // "0047701740633"
 ```
@@ -2213,7 +2213,7 @@ foreach (var number in PhoneNumberTestData.All)
 
 // Check specific ranges
 PhoneNumberTestData.Mobile             // 070-174 06 05 – 070-174 06 99
-PhoneNumberTestData.LandlineStockholm  // 08-4650 04 00 – 08-4650 04 99
+PhoneNumberTestData.LandlineStockholm  // 08-465 004 00 – 08-465 004 99
 PhoneNumberTestData.LandlineGothenburg // 031-390 06 00 – 031-390 06 99
 PhoneNumberTestData.LandlineMalmo      // 040-628 04 00 – 040-628 04 99
 PhoneNumberTestData.LandlineKiruna     // 0980-31 92 00 – 0980-31 92 99
@@ -4491,7 +4491,7 @@ SwedishBankAccount.Parse("50011234567").ToMaskedString();             // "5001-*
 EmailAddress.Parse("peter@example.com").ToMaskedString();            // "p***@example.com"
 
 // Phone - area code visible, subscriber digits masked, last 2 visible
-PhoneNumber.Parse("0701740633").ToMaskedString();                    // "0701-** ** 33"
+PhoneNumber.Parse("0701740633").ToMaskedString();                    // "070-*** ** 33"
 
 // Person name - fully masked by default, initials as alternative
 PersonFullName.Parse("Anna Maria Andersson").ToMaskedString();       // "*** *** ***"
@@ -4546,7 +4546,7 @@ The following table lists every type that provides a `ToMaskedString()` extensio
 
 | Type | Default | Options |
 | ---- | ------- | ------- |
-| `PhoneNumber` (Swedish) | `0701-** ** 33` (area code + last 2) | `visibleDigitsAtEnd: 0` → all subscriber digits masked |
+| `PhoneNumber` (Swedish) | `070-*** ** 33` (area code + last 2) | `visibleDigitsAtEnd: 0` → all subscriber digits masked |
 | `PhoneNumber` (international) | `+44********58` | same parameter |
 | `SwedishAddress` | `Storgatan **, *** ** Stockholm` | delegates to `Address` masking |
 | `SwedishAddressZipCode` | `*** **` | delegates to `AddressZipCode` masking |
@@ -4698,9 +4698,9 @@ using Buildi.Primitives.Contact;
 
 // Swedish phone - area code prefix + last 2 digits visible
 var phone = PhoneNumber.Parse("0701740633");
-phone.ToMaskedString();                        // "0701-** ** 33"
-phone.ToMaskedString(visibleDigitsAtEnd: 0);   // "0701-** ** **"
-phone.ToMaskedString(visibleDigitsAtEnd: 4);   // "0701-** 0633"
+phone.ToMaskedString();                        // "070-*** ** 33"
+phone.ToMaskedString(visibleDigitsAtEnd: 0);   // "070-*** ** **"
+phone.ToMaskedString(visibleDigitsAtEnd: 4);   // "070-*** 06 33"
 
 // International phone - country code + last 2 digits
 PhoneNumber.Parse("+44 20 7946 0958").ToMaskedString();  // "+44********58"
