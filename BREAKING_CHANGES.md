@@ -9,6 +9,44 @@ Non-breaking additions belong in regular release notes / commit history, not her
 - One `### <short title>` heading per breaking change inside that version. Use as many sub-sections per change as you need: **What changed**, **Why**, **Migration**, **Examples**, etc.
 - Order versions from newest to oldest.
 
+## Breaking changes 0.22.0 - 0.23.0
+
+### `Color` resolves shade names from RGB and spells grey as `grey`
+
+**Area:** `Buildi.Primitives.Product`
+
+**What changed**
+
+- `Color.TryParse` of a hex, `rgb()` or `hsl()` value that exactly matches a shade the parser
+  itself produces (`ljus`/`mörk`/`blek` × a named color) now sets `NameEnglish` / `NameSwedish`
+  to the shade name. Previously these were `null`. `Format` and `ToString` therefore return the
+  name instead of the hex, e.g. `Color.Format("#4D4D4D")` is now `"dark grey"` (was `"#4D4D4D"`).
+- `#808080` (and its `rgb()` / `hsl()` equivalents) now resolves to `NameEnglish = "grey"`
+  (was `"gray"`), matching what `grå` already produced. Input `gray` still gives `"gray"`.
+- `Normalize` / `ToNormalizedString` (the hex) are unchanged.
+
+**Why**
+
+Consumers that store the canonical hex and format it later lost the name for every shade
+(`mörkgrå` → `#4D4D4D` → no name), and the English name of grey depended on the input form.
+See [issue #8](https://github.com/budiauktioner/Buildi.Primitives/issues/8).
+
+**Migration**
+
+- Code that relied on `Format` / `ToString` returning the hex for shade colors should use
+  `Normalize` / `ToNormalizedString` / `Hex` instead.
+- Code comparing `NameEnglish` with `"gray"` for hex input should compare with `"grey"`, or compare
+  RGB / `Hex` instead.
+
+**Examples**
+
+```csharp
+Color.Format("#4D4D4D");          // was "#4D4D4D", now "dark grey"
+Color.Parse("#4D4D4D").NameSwedish; // was null, now "mörkgrå"
+Color.Format("#808080");          // was "gray", now "grey"
+Color.Normalize("#4D4D4D");       // unchanged: "#4D4D4D"
+```
+
 ## Breaking changes 0.18.0 - 0.19.0
 
 ### `PhoneNumber.TryParse` strips trunk-prefix `0` consistently across all input branches

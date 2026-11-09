@@ -41,6 +41,7 @@ public sealed class Color : IEquatable<Color>, IComparable<Color>
             (0xFF, 0xC0, 0xCB, "pink", "rosa"),
             (0x00, 0x00, 0x00, "black", "svart"),
             (0xFF, 0xFF, 0xFF, "white", "vit"),
+            (0x80, 0x80, 0x80, "grey", "grå"),
             (0x80, 0x80, 0x80, "gray", "grå"),
             (0xA5, 0x2A, 0x2A, "brown", "brun"),
             (0xFF, 0xD7, 0x00, "gold", "guld"),
@@ -62,7 +63,6 @@ public sealed class Color : IEquatable<Color>, IComparable<Color>
             (0xF0, 0xE6, 0x8C, "khaki", "kaki"),
             (0xE6, 0xE6, 0xFA, "lavender", "lavendel"),
             (0xDC, 0x14, 0x3C, "crimson", "karmosinröd"),
-            (0x80, 0x80, 0x80, "grey", "grå"),
             (0xFF, 0x63, 0x47, "tomato", "tomat"),
             (0xDD, 0xA0, 0xDD, "plum", "plommon"),
             (0x80, 0x00, 0x20, "burgundy", "vinröd"),
@@ -73,12 +73,19 @@ public sealed class Color : IEquatable<Color>, IComparable<Color>
         foreach (var e in entries)
         {
             byName[e.English] = (e.R, e.G, e.B, e.English, e.Swedish);
-            if (!string.Equals(e.English, e.Swedish, StringComparison.OrdinalIgnoreCase))
-                byName[e.Swedish] = (e.R, e.G, e.B, e.English, e.Swedish);
+            byName.TryAdd(e.Swedish, (e.R, e.G, e.B, e.English, e.Swedish));
+            byRgb.TryAdd((e.R, e.G, e.B), (e.English, e.Swedish));
+        }
 
-            var key = (e.R, e.G, e.B);
-            if (!byRgb.ContainsKey(key))
-                byRgb[key] = (e.English, e.Swedish);
+        var canonicalModifiers = ColorModifiers.DistinctBy(m => m.SvDisplay).ToArray();
+        foreach (var e in entries)
+        {
+            var baseEntry = byName[e.Swedish];
+            foreach (var modifier in canonicalModifiers)
+            {
+                var shade = CreateShade(baseEntry, modifier.SvDisplay, modifier.EnDisplay, modifier.Factor);
+                byRgb.TryAdd((shade.R, shade.G, shade.B), (shade.NameEnglish!, shade.NameSwedish!));
+            }
         }
 
         return (byName, byRgb);
@@ -117,10 +124,16 @@ public sealed class Color : IEquatable<Color>, IComparable<Color>
     /// <summary>Lightness 0–100 (percent, HSL), derived from RGB.</summary>
     public int L => RgbToHsl(R, G, B).L;
 
-    /// <summary>English CSS-style name when this RGB matches a known named color; otherwise <see langword="null"/>.</summary>
+    /// <summary>
+    /// English CSS-style name when this RGB exactly matches a named color or one of its shades,
+    /// e.g. <c>grey</c> or <c>dark grey</c> for <c>#4D4D4D</c>; otherwise <see langword="null"/>.
+    /// </summary>
     public string? NameEnglish { get; }
 
-    /// <summary>Swedish name when this RGB matches a known named color; otherwise <see langword="null"/>.</summary>
+    /// <summary>
+    /// Swedish name when this RGB exactly matches a named color or one of its shades,
+    /// e.g. <c>grå</c> or <c>mörkgrå</c> for <c>#4D4D4D</c>; otherwise <see langword="null"/>.
+    /// </summary>
     public string? NameSwedish { get; }
 
     private Color(byte r, byte g, byte b, string? nameEnglish, string? nameSwedish)
@@ -366,13 +379,19 @@ public sealed class Color : IEquatable<Color>, IComparable<Color>
         {
             if (TryExtractBaseColor(input, prefix, out var entry))
             {
-                var (r, g, b) = BlendBrightness(entry.R, entry.G, entry.B, factor);
-                result = new Color(r, g, b, $"{enDisplay} {entry.English}", $"{svDisplay}{entry.Swedish}");
+                result = CreateShade(entry, svDisplay, enDisplay, factor);
                 return true;
             }
         }
 
         return false;
+    }
+
+    private static Color CreateShade((byte R, byte G, byte B, string English, string Swedish) entry,
+        string svDisplay, string enDisplay, double factor)
+    {
+        var (r, g, b) = BlendBrightness(entry.R, entry.G, entry.B, factor);
+        return new Color(r, g, b, $"{enDisplay} {entry.English}", $"{svDisplay}{entry.Swedish}");
     }
 
     private static bool TryExtractBaseColor(string input, string prefix,

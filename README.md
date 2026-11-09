@@ -3159,7 +3159,7 @@ GoogleProductCategory.Normalize("  Electronics > Computers  ");      // "Electro
 
 #### Color
 
-An sRGB color (*färg*) parsed from CSS hex codes (`#RGB`, `#RRGGBB`), `rgb()`, `hsl()` functions, or named CSS/Swedish color names. Each parsed color exposes R/G/B channels, HSL values, and English/Swedish names when the RGB matches a known named color.
+An sRGB color (*färg*) parsed from CSS hex codes (`#RGB`, `#RRGGBB`), `rgb()`, `hsl()` functions, or named CSS/Swedish color names, optionally with a shade modifier (`ljus`/`light`, `mörk`/`dark`, `blek`/`pale`, or the feed abbreviations `L`/`M`, e.g. `mörkgrå`, `LGRÅ`). Each parsed color exposes R/G/B channels, HSL values, and English/Swedish names when the RGB exactly matches a named color or one of its shades, so a stored hex value formats back to the same name (`#4D4D4D` → `mörkgrå` / `dark grey`). When a shade has the same RGB as a base color, the base name wins (`#FFFFFF` is `vit`, not `ljusvit`). Grey resolves to the spelling `grey`, unless `gray` is given as input.
 
 Tests: [ColorTests.cs](test/Buildi.Primitives.Tests/Product/ColorTests.cs)
 
@@ -3177,6 +3177,9 @@ if (Color.TryParse("#FF0000", out var color))
 Color.IsValid("rgb(0, 128, 0)");            // true
 Color.Format("rgb(0, 128, 0)");             // "green"
 Color.Normalize("#f00");                     // "#FF0000"
+Color.Normalize("mörkgrå");                  // "#4D4D4D"
+Color.Format("#4D4D4D");                     // "dark grey"
+Color.Parse("#4D4D4D").NameSwedish;          // "mörkgrå"
 ```
 
 #### Adult clothing size

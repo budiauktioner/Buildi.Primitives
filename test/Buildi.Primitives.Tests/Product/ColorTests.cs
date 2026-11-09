@@ -345,6 +345,110 @@ public class ColorTests
         Assert.Equal("turkos", fromHex.NameSwedish);
     }
 
+    private static readonly (string English, string Swedish)[] BaseColorNames =
+    [
+        ("red", "röd"), ("blue", "blå"), ("green", "grön"), ("yellow", "gul"), ("orange", "orange"),
+        ("purple", "lila"), ("pink", "rosa"), ("black", "svart"), ("white", "vit"), ("grey", "grå"),
+        ("brown", "brun"), ("gold", "guld"), ("silver", "silver"), ("navy", "marinblå"), ("cyan", "cyan"),
+        ("magenta", "magenta"), ("lime", "lime"), ("olive", "oliv"), ("maroon", "rödbrun"), ("teal", "blågrön"),
+        ("coral", "korall"), ("salmon", "laxrosa"), ("turquoise", "turkos"), ("violet", "violett"),
+        ("indigo", "indigo"), ("beige", "beige"), ("ivory", "elfenben"), ("khaki", "kaki"),
+        ("lavender", "lavendel"), ("crimson", "karmosinröd"), ("tomato", "tomat"), ("plum", "plommon"),
+        ("burgundy", "vinröd"),
+    ];
+
+    private static readonly HashSet<string> ShadesEqualToBaseColor = ["mörksvart", "ljusvit", "blekvit"];
+
+    public static TheoryData<string> ShadeNames()
+    {
+        var data = new TheoryData<string>();
+        foreach (var (english, swedish) in BaseColorNames)
+        {
+            foreach (var (sv, en) in new[] { ("ljus", "light"), ("mörk", "dark"), ("blek", "pale") })
+            {
+                if (ShadesEqualToBaseColor.Contains(sv + swedish)) continue;
+                data.Add(sv + swedish);
+                data.Add($"{en} {english}");
+            }
+        }
+
+        return data;
+    }
+
+    [Theory]
+    [MemberData(nameof(ShadeNames))]
+    public void RoundTrip_ShadeNameToHexToName(string name)
+    {
+        var fromName = Color.Parse(name);
+
+        var fromHex = Color.Parse(fromName.Hex);
+
+        Assert.Equal(fromName.NameSwedish, fromHex.NameSwedish);
+        Assert.Equal(fromName.NameEnglish, fromHex.NameEnglish);
+        Assert.Equal(fromName.ToString(), fromHex.ToString());
+    }
+
+    [Theory]
+    [InlineData("#B3B3B3", "light grey", "ljusgrå")]
+    [InlineData("#4D4D4D", "dark grey", "mörkgrå")]
+    [InlineData("#000099", "dark blue", "mörkblå")]
+    [InlineData("#6666FF", "light blue", "ljusblå")]
+    [InlineData("#004D00", "dark green", "mörkgrön")]
+    [InlineData("#66B366", "light green", "ljusgrön")]
+    [InlineData("#990000", "dark red", "mörkröd")]
+    [InlineData("#FF6666", "light red", "ljusröd")]
+    [InlineData("#C97F7F", "light brown", "ljusbrun")]
+    [InlineData("#631919", "dark brown", "mörkbrun")]
+    [InlineData("#FFFF66", "light yellow", "ljusgul")]
+    [InlineData("#4D004D", "dark purple", "mörklila")]
+    [InlineData("#996300", "dark orange", "mörkorange")]
+    [InlineData("#4d4d4d", "dark grey", "mörkgrå")]
+    [InlineData("rgb(77, 77, 77)", "dark grey", "mörkgrå")]
+    public void TryParse_ShadeRgb_ResolvesShadeName(string input, string expectedEn, string expectedSv)
+    {
+        var c = Color.Parse(input);
+
+        Assert.Equal(expectedEn, c.NameEnglish);
+        Assert.Equal(expectedSv, c.NameSwedish);
+    }
+
+    [Theory]
+    [InlineData("mörksvart", "black", "svart")]
+    [InlineData("ljusvit", "white", "vit")]
+    [InlineData("blekvit", "white", "vit")]
+    public void TryParse_ShadeEqualToBaseColorRgb_HexResolvesBaseName(string shade, string expectedEn, string expectedSv)
+    {
+        var fromHex = Color.Parse(Color.Parse(shade).Hex);
+
+        Assert.Equal(expectedEn, fromHex.NameEnglish);
+        Assert.Equal(expectedSv, fromHex.NameSwedish);
+    }
+
+    [Theory]
+    [InlineData("#4D4D4D", "dark grey")]
+    [InlineData("#808080", "grey")]
+    [InlineData("#102030", "#102030")]
+    public void Format_ShadeAndGreyHex_ReturnsCanonicalName(string input, string expected)
+    {
+        Assert.Equal(expected, Color.Format(input));
+        Assert.Equal(expected, Color.Parse(input).ToString());
+    }
+
+    [Theory]
+    [InlineData("grå", "grey")]
+    [InlineData("grey", "grey")]
+    [InlineData("#808080", "grey")]
+    [InlineData("rgb(128, 128, 128)", "grey")]
+    [InlineData("gray", "gray")]
+    [InlineData("dark gray", "dark gray")]
+    public void TryParse_Grey_UsesCanonicalSpellingUnlessGivenInEnglish(string input, string expectedEn)
+    {
+        var c = Color.Parse(input);
+
+        Assert.Equal(expectedEn, c.NameEnglish);
+        Assert.Equal(input.Contains("dark") ? "mörkgrå" : "grå", c.NameSwedish);
+    }
+
     [Fact]
     public void RoundTrip_HexToName_ForNamedRgb()
     {
