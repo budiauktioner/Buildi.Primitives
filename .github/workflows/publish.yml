@@ -11,6 +11,7 @@ env:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   publish:
@@ -41,8 +42,18 @@ jobs:
       - name: Pack
         run: dotnet pack src/Buildi.Primitives/Buildi.Primitives.csproj --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --output ./artifacts
 
+      # Trusted publishing: exchanges the GitHub OIDC token for a short-lived
+      # NuGet API key, so no long-lived key is stored in this repository.
+      # NUGET_USER is the nuget.org profile name (not email) that owns the
+      # trusted publishing policy for this repository and publish.yml.
+      - name: NuGet login
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Push to NuGet
-        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
 
       - name: Create GitHub Release
         env:
