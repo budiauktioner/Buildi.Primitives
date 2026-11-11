@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0-preview.4.25258.110" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.14" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Buildi.Primitives\Buildi.Primitives.csproj" />
