@@ -619,7 +619,7 @@
 
         ("People & Vehicles",
             "A Volvo with registration number ABC 123 was observed in central Stockholm. " +
-            "The registered owner, with personnummer 900101-0017, resides at Storgatan 45, " +
+            "The registered owner, with personnummer 900101-2385, resides at Storgatan 45, " +
             "114 53 Stockholm. For more information, contact +46 70 123 45 67 or email " +
             "karin.andersson@example.org.\n\n" +
             "The property Stockholm S\u00f6der 75:2 was recently listed for sale at " +
@@ -889,7 +889,7 @@
 
         // ── Person ──
 
-        new(nameof(SwedishPersonalIdentityNumber), "Person", "900101-0017",
+        new(nameof(SwedishPersonalIdentityNumber), "Person", "900101-2385",
             s => SwedishPersonalIdentityNumber.IsValid(s),
             s => SwedishPersonalIdentityNumber.Format(s),
             s => SwedishPersonalIdentityNumber.Normalize(s),

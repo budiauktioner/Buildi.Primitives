@@ -9,6 +9,36 @@ Non-breaking additions belong in regular release notes / commit history, not her
 - One `### <short title>` heading per breaking change inside that version. Use as many sub-sections per change as you need: **What changed**, **Why**, **Migration**, **Examples**, etc.
 - Order versions from newest to oldest.
 
+## Breaking changes 0.23.0 - 0.24.0
+
+### `WatercraftIdentificationNumber` rejects the user-assigned country code `XK`
+
+**Area:** `Buildi.Primitives.Vehicle`
+
+**What changed**
+
+The country code of an ISO 10087 number is checked against the 249 officially assigned
+ISO 3166-1 alpha-2 codes rather than the `Country` catalog.
+
+- `XK-HXAB7A33G506` is now invalid (`UnknownCountryCode`). `XK` is user-assigned, not an
+  ISO code, even though the `Country` catalog lists it for Kosovo.
+- Assigned codes missing from the catalog, such as `KY-HXAB7A33G506`, are now valid. For
+  these, `Country` is `null` even though `CountryCode` is set.
+
+**Why**
+
+ISO 10087 requires an ISO 3166-1 alpha-2 code, and the `Country` catalog is neither
+complete nor limited to assigned codes.
+
+**Migration**
+
+Code that reads `win.Country` for an ISO number should handle `null` and fall back to
+`win.CountryCode`. Stored `XK` numbers no longer parse.
+
+```csharp
+var name = win.Country?.EnglishName ?? win.CountryCode;
+```
+
 ## Breaking changes 0.22.0 - 0.23.0
 
 ### `Color` resolves shade names from RGB and spells grey as `grey`

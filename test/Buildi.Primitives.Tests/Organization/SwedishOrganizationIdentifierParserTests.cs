@@ -12,7 +12,7 @@ public class SwedishOrganizationIdentifierParserTests
     private const string SundaHusLinkoepingAB = "556404-1373";
     
     // Swedish Personal Identity Numbers
-    private const string Pin1 = "193803032394";
+    private const string Pin1 = "193801029202";
     private const string Pin2 = "199102152387";
     
     // VAT Numbers

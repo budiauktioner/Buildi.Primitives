@@ -8,6 +8,7 @@ public class SwedishCoordinationNumberTests
 {
     [Theory]
     [InlineData("196801642395")]
+    [InlineData("19680164-2395")]
     [InlineData("680164-2395")]
     [InlineData("6801642395")]
     public void IsValid_ReturnsTrue_ForValidInputs(string input)
@@ -21,6 +22,9 @@ public class SwedishCoordinationNumberTests
     [InlineData("   ")]
     [InlineData("000000-0000")]
     [InlineData("notanumber")]
+    [InlineData("19680164+2395")]
+    [InlineData("19680164 2395")]
+    [InlineData("19680164-2396")]
     public void IsValid_ReturnsFalse_ForInvalidInputs(string? input)
     {
         Assert.False(SwedishCoordinationNumber.IsValid(input));
@@ -47,6 +51,7 @@ public class SwedishCoordinationNumberTests
     [Theory]
     [InlineData("680164-2395", "196801642395")]
     [InlineData("196801642395", "196801642395")]
+    [InlineData("19680164-2395", "196801642395")]
     public void Normalize_Returns12DigitForm(string input, string expected)
     {
         Assert.Equal(expected, SwedishCoordinationNumber.Normalize(input));
@@ -87,7 +92,7 @@ public class SwedishCoordinationNumberTests
     public void Equality_DifferentValues_AreNotEqual()
     {
         var a = SwedishCoordinationNumber.Parse("680164-2395");
-        var b = SwedishCoordinationNumber.Parse("990867-2398");
+        var b = SwedishCoordinationNumber.Parse("990367-2385");
         Assert.NotEqual(a, b);
         Assert.True(a != b);
         Assert.False(a == b);
@@ -106,7 +111,7 @@ public class SwedishCoordinationNumberTests
     public void CompareTo_OrdersCorrectly()
     {
         var a = SwedishCoordinationNumber.Parse("680164-2395");
-        var b = SwedishCoordinationNumber.Parse("990867-2398");
+        var b = SwedishCoordinationNumber.Parse("990367-2385");
         Assert.True(a.CompareTo(b) < 0);
         Assert.True(b.CompareTo(a) > 0);
         Assert.Equal(0, a.CompareTo(a));

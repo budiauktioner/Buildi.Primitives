@@ -101,7 +101,10 @@ public sealed class WatercraftIdentificationNumber : IEquatable<WatercraftIdenti
     /// </summary>
     public string? CountryCode { get; }
 
-    /// <summary>The country of <see cref="CountryCode"/>, or <see langword="null"/> for a US HIN.</summary>
+    /// <summary>
+    /// The country of <see cref="CountryCode"/>, or <see langword="null"/> for a US HIN and for an
+    /// assigned code the <see cref="Geography.Country"/> catalog does not cover, e.g. <c>KY</c>.
+    /// </summary>
     public Country? Country { get; }
 
     /// <summary>The three-character manufacturer identification code (MIC), e.g. <c>HXA</c>.</summary>
@@ -281,9 +284,8 @@ public sealed class WatercraftIdentificationNumber : IEquatable<WatercraftIdenti
     private static bool TryResolveCountry(string code, out Country? country)
     {
         country = null;
-        if (!CountryCodePattern.IsMatch(code)) return false;
-        if (!Country.TryParse(code, out var parsed) || parsed!.Alpha2Code != code) return false;
-        country = parsed;
+        if (!CountryCodePattern.IsMatch(code) || !Iso3166Alpha2.IsAssigned(code)) return false;
+        if (Country.TryParse(code, out var parsed) && parsed!.Alpha2Code == code) country = parsed;
         return true;
     }
 

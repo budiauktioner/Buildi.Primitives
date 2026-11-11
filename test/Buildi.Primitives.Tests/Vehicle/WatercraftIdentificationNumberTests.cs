@@ -1,3 +1,4 @@
+using Buildi.Primitives.Geography;
 using Buildi.Primitives.TextScanning;
 using Buildi.Primitives.Validation;
 using Buildi.Primitives.Vehicle;
@@ -154,6 +155,45 @@ public class WatercraftIdentificationNumberTests
         Assert.Equal(1, win.ProductionMonth);
         Assert.Equal(0, win.ProductionYearDigit);
         Assert.Equal("20", win.ModelYearDigits);
+    }
+
+    [Theory]
+    [InlineData("KY")]
+    [InlineData("VG")]
+    [InlineData("RE")]
+    [InlineData("AQ")]
+    [InlineData("SX")]
+    public void TryParse_AcceptsAssignedCodeMissingFromCountryCatalog(string code)
+    {
+        Assert.True(WatercraftIdentificationNumber.TryParse($"{code}-HXAB7A33G506", out var win));
+        Assert.Equal(code, win!.CountryCode);
+        Assert.Null(win.Country);
+    }
+
+    [Theory]
+    [InlineData("XK")]
+    [InlineData("AA")]
+    [InlineData("QM")]
+    [InlineData("XA")]
+    [InlineData("ZZ")]
+    [InlineData("UK")]
+    [InlineData("EU")]
+    public void Validate_RejectsCodeThatIsNotOfficiallyAssigned(string code)
+    {
+        var result = WatercraftIdentificationNumber.Validate($"{code}-HXAB7A33G506");
+
+        Assert.False(result.IsValid);
+        Assert.Equal(ValidationErrorReason.UnknownCountryCode, Assert.Single(result.Issues).Reason);
+    }
+
+    [Fact]
+    public void TryParse_AcceptsEveryAssignedCodeInCountryCatalog()
+    {
+        foreach (var country in Country.All.Where(c => c.Alpha2Code != "XK"))
+        {
+            Assert.True(WatercraftIdentificationNumber.TryParse($"{country.Alpha2Code}-HXAB7A33G506", out var win), country.Alpha2Code);
+            Assert.Equal(country.Alpha2Code, win!.Country!.Alpha2Code);
+        }
     }
 
     [Fact]

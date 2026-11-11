@@ -1,0 +1,89 @@
+{
+  "$comment": "Shared with the TypeScript port, which keeps a verbatim copy at test/person/personal-number-parity-cases.json. Change both copies together. 'normalized' is the expected Normalize() result, or null when every parse entry point must reject the input. Valid numbers come from Skatteverket's open test data (testpersonnummer and testsamordningsnummer); invalid inputs are variants of them. See TEST_AND_SAMPLE_DATA.md.",
+  "cases": [
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": "199908072391",
+      "normalized": "199908072391"
+    },
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": "9908072391",
+      "normalized": "199908072391"
+    },
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": "990807-2391",
+      "normalized": "199908072391"
+    },
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": "19990807-2391",
+      "normalized": "199908072391"
+    },
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": " 19990807-2391 ",
+      "normalized": "199908072391"
+    },
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": "1212121212",
+      "normalized": "201212121212"
+    },
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": "121212-1212",
+      "normalized": "201212121212"
+    },
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": "20121212-1212",
+      "normalized": "201212121212"
+    },
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": "189001019802",
+      "normalized": "189001019802"
+    },
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": "900101+9802",
+      "normalized": "189001019802"
+    },
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": "18900101-9802",
+      "normalized": "189001019802"
+    },
+    { "type": "SwedishPersonalIdentityNumber", "input": "19990807+2391", "normalized": null },
+    { "type": "SwedishPersonalIdentityNumber", "input": "18900101+9802", "normalized": null },
+    { "type": "SwedishPersonalIdentityNumber", "input": "19990807 2391", "normalized": null },
+    { "type": "SwedishPersonalIdentityNumber", "input": "19990807\u20132391", "normalized": null },
+    { "type": "SwedishPersonalIdentityNumber", "input": "19990807\u22122391", "normalized": null },
+    { "type": "SwedishPersonalIdentityNumber", "input": "19990807--2391", "normalized": null },
+    { "type": "SwedishPersonalIdentityNumber", "input": "1999080-72391", "normalized": null },
+    { "type": "SwedishPersonalIdentityNumber", "input": "199908072391-", "normalized": null },
+    { "type": "SwedishPersonalIdentityNumber", "input": "19990807-2390", "normalized": null },
+    { "type": "SwedishPersonalIdentityNumber", "input": "19680164-2395", "normalized": null },
+    {
+      "type": "SwedishPersonalIdentityNumber",
+      "input": "\uFF11\uFF19\uFF19\uFF19\uFF10\uFF18\uFF10\uFF17-\uFF12\uFF13\uFF19\uFF11",
+      "normalized": null
+    },
+
+    { "type": "SwedishCoordinationNumber", "input": "196801642395", "normalized": "196801642395" },
+    { "type": "SwedishCoordinationNumber", "input": "680164-2395", "normalized": "196801642395" },
+    { "type": "SwedishCoordinationNumber", "input": "19680164-2395", "normalized": "196801642395" },
+    { "type": "SwedishCoordinationNumber", "input": "19680164+2395", "normalized": null },
+    { "type": "SwedishCoordinationNumber", "input": "19680164 2395", "normalized": null },
+    { "type": "SwedishCoordinationNumber", "input": "19680164\u20132395", "normalized": null },
+    { "type": "SwedishCoordinationNumber", "input": "19680164-2396", "normalized": null },
+    { "type": "SwedishCoordinationNumber", "input": "19990807-2391", "normalized": null },
+
+    { "type": "SwedishOrganizationNumber", "input": "19990807-2391", "normalized": "199908072391" },
+    { "type": "SwedishOrganizationNumber", "input": "19680164-2395", "normalized": "196801642395" },
+    { "type": "SwedishOrganizationNumber", "input": "19990807+2391", "normalized": null },
+    { "type": "SwedishOrganizationNumber", "input": "19990807-2390", "normalized": null }
+  ]
+}

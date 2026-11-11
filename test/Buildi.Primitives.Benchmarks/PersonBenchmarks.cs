@@ -16,7 +16,7 @@ public class PersonBenchmarks
     private const string ValidFullName = "Anna-Karin Andersson";
     private const string InvalidFullName = "";
 
-    private const string ValidPnr = "198507099805";
+    private const string ValidPnr = "198501012382";
     private const string InvalidPnr = "0000000000";
 
     private const string ValidCoordination = "198507699818";
