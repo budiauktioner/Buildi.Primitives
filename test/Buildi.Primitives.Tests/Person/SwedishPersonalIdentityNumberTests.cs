@@ -8,6 +8,7 @@ public class SwedishPersonalIdentityNumberTests
 {
     [Theory]
     [InlineData("199908072391")]
+    [InlineData("19990807-2391")]
     [InlineData("990807-2391")]
     [InlineData("9908072391")]
     public void IsValid_ReturnsTrue_ForValidInputs(string input)
@@ -21,6 +22,10 @@ public class SwedishPersonalIdentityNumberTests
     [InlineData("   ")]
     [InlineData("000000-0000")]
     [InlineData("notanumber")]
+    [InlineData("19990807+2391")]
+    [InlineData("19990807 2391")]
+    [InlineData("19990807–2391")]
+    [InlineData("19990807-2390")]
     public void IsValid_ReturnsFalse_ForInvalidInputs(string? input)
     {
         Assert.False(SwedishPersonalIdentityNumber.IsValid(input));
@@ -39,6 +44,8 @@ public class SwedishPersonalIdentityNumberTests
     [Theory]
     [InlineData("990807-2391", "990807-2391")]
     [InlineData("199908072391", "990807-2391")]
+    [InlineData("19990807-2391", "990807-2391")]
+    [InlineData("18900101-9802", "900101+9802")]
     public void Format_ReturnsDisplayForm(string input, string expected)
     {
         Assert.Equal(expected, SwedishPersonalIdentityNumber.Format(input));
@@ -47,6 +54,7 @@ public class SwedishPersonalIdentityNumberTests
     [Theory]
     [InlineData("990807-2391", "199908072391")]
     [InlineData("199908072391", "199908072391")]
+    [InlineData("19990807-2391", "199908072391")]
     public void Normalize_Returns12DigitForm(string input, string expected)
     {
         Assert.Equal(expected, SwedishPersonalIdentityNumber.Normalize(input));
@@ -126,6 +134,8 @@ public class SwedishPersonalIdentityNumberTests
     [InlineData("123", false, ValidationErrorReason.InvalidFormat)]
     [InlineData("000000-0000", false, ValidationErrorReason.InvalidFormat)]
     [InlineData("199908072391", true, null)]
+    [InlineData("19990807-2391", true, null)]
+    [InlineData("19990807+2391", false, ValidationErrorReason.InvalidFormat)]
     [InlineData("990807-2391", true, null)]
     public void Validate_ReturnsExpectedResult(string? input, bool expectedIsValid, ValidationErrorReason? expectedReason)
     {

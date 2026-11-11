@@ -63,8 +63,24 @@ public class FindCandidatesInTextTests : IDisposable
     [Fact]
     public void PIN_FindsWithPlus()
     {
-        var results = SwedishPersonalIdentityNumber.FindCandidatesInText("Nummer: 990807+2391");
+        var results = SwedishPersonalIdentityNumber.FindCandidatesInText("Nummer: 900101+9802");
         Assert.Single(results);
+    }
+
+    [Fact]
+    public void PIN_FindsTwelveDigitsWithDash()
+    {
+        var results = SwedishPersonalIdentityNumber.FindCandidatesInText("Person: 19990807-2391 bor här.");
+        Assert.Single(results);
+        Assert.Equal("19990807-2391", results[0].OriginalText);
+        Assert.Equal("199908072391", results[0].NormalizedForm);
+    }
+
+    [Fact]
+    public void PIN_DoesNotMatchTwelveDigitsWithPlus()
+    {
+        var results = SwedishPersonalIdentityNumber.FindCandidatesInText("Nummer: 19990807+2391");
+        Assert.Empty(results);
     }
 
     [Fact]
@@ -81,6 +97,14 @@ public class FindCandidatesInTextTests : IDisposable
     {
         var results = SwedishCoordinationNumber.FindCandidatesInText("Samordningsnummer: 680164-2395");
         Assert.Single(results);
+    }
+
+    [Fact]
+    public void CoordinationNumber_FindsTwelveDigitsWithDash()
+    {
+        var results = SwedishCoordinationNumber.FindCandidatesInText("Samordningsnummer: 19680164-2395");
+        Assert.Single(results);
+        Assert.Equal("196801642395", results[0].NormalizedForm);
     }
 
     // --- SwedishOrganizationNumber ---

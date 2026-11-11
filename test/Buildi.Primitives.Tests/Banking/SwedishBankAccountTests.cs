@@ -78,8 +78,8 @@ public class SwedishBankAccountTests
     [InlineData("  7000 1234567  ", "7000", "1234567")]
     [InlineData("81234-123456", "81234", "123456")]
     [InlineData("8105-9694719622-3", "81059", "6947196223")]
-    [InlineData("33007109230511", "3300", "7109230511")]
-    [InlineData("3300 590413-0035", "3300", "5904130035")]
+    [InlineData("33007101019045", "3300", "7101019045")]
+    [InlineData("3300 590201-0353", "3300", "5902010353")]
     public void TryParse_ReturnsClearingAndAccount_ForValidInput(string input, string expectedClearing,
         string expectedAccount)
     {

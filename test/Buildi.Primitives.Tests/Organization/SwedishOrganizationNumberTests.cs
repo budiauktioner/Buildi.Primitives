@@ -17,7 +17,7 @@ public class SwedishOrganizationNumberTests
     private const string ConnyOrneholmManagementAB = "559474-6686";
 
     // Valid Swedish Personal Identity Numbers
-    private const string Pin1 = "193803032394";
+    private const string Pin1 = "193801029202";
     private const string Pin2 = "199102152387";
     private const string Pin3 = "200102192390";
     
@@ -513,7 +513,7 @@ public class SwedishOrganizationNumberTests
     public void TryParse_PersonalIdentityNumberWith10Digits_ShouldParseCorrectly()
     {
         // Arrange
-        var input = "380303-2394"; // 10-digit format
+        var input = "380102-9202"; // 10-digit format
 
         // Act
         var result = SwedishOrganizationNumber.TryParse(input, out var orgNumber);

@@ -648,7 +648,7 @@ Console.WriteLine(brfHint.Certain);    // EkonomiskForening (digit 7 = economic 
 Console.WriteLine(brfHint.BestGuess);  // Bostadsrattsforening (inferred from "BRF" in the name)
 
 // Person-based number - can be either a sole trader or a private person
-var pin = SwedishOrganizationNumber.Parse("380303-2394");
+var pin = SwedishOrganizationNumber.Parse("380102-9202");
 Console.WriteLine(pin.IsPerson);    // true
 var pinHint = pin.GetSwedishOrganizationTypeHint(isPrivatePerson: true);
 Console.WriteLine(pinHint.Certain);    // EnskildFirmaEllerPrivatperson (cannot distinguish from number)
@@ -2929,7 +2929,7 @@ The hull marking of a small craft (*skrovnummer*). Two formats are accepted:
 - The ISO 10087 craft identification number - CIN, which Transportstyrelsen now calls WIN - of 14 characters plus a hyphen: a two-letter ISO 3166-1 country code for the country where the manufacturer is established, a hyphen, a three-character manufacturer code, a five-character serial number, a month letter (`A` January to `L` December), the last digit of the production year and the last two digits of the model year.
 - The 12-character US hull identification number (HIN) required since August 1984 by 33 CFR 181.25, which has the same layout without the country code.
 
-Each segment is validated on its own: the manufacturer code may not contain the digits `0` or `1` in an ISO number, and the serial number may not contain the letters `I`, `O` or `Q` - so `I` is still valid in a manufacturer code and as the September month code. Input may be lowercase and contain whitespace, and an ISO number may be written with or without its hyphen. A hyphen anywhere else, or any other punctuation, is rejected. `Normalize` returns the number without separators (14 characters for ISO, 12 for a US HIN); `Format` and `ToString()` return it as marked on the hull, with the hyphen after an ISO country code.
+Each segment is validated on its own: the country code must be one of the 249 officially assigned ISO 3166-1 alpha-2 codes, so user-assigned codes such as `XK` are rejected, and `Country` is `null` for an assigned code the `Country` catalog does not cover, such as `KY`. The manufacturer code may not contain the digits `0` or `1` in an ISO number, and the serial number may not contain the letters `I`, `O` or `Q` - so `I` is still valid in a manufacturer code and as the September month code. Input may be lowercase and contain whitespace, and an ISO number may be written with or without its hyphen. A hyphen anywhere else, or any other punctuation, is rejected. `Normalize` returns the number without separators (14 characters for ISO, 12 for a US HIN); `Format` and `ToString()` return it as marked on the hull, with the hyphen after an ISO country code.
 
 There is no check digit, so a parsed value is structurally valid only: it does not prove that the manufacturer code is registered or that the number belongs to a particular craft. The years are exposed as the digits that are encoded, since the century cannot be derived from them. Older US markings from before August 1984 are not accepted.
 
@@ -3897,6 +3897,8 @@ A Swedish personal identity number (*personnummer*) is a national identification
 
 The 12-digit form is `YYYYMMDDNNNC`; the 10-digit display form is `YYMMDD-NNNC` (with `-` for age under 100, `+` for 100 or older). The birth number (digits 7–9 in the 10-digit form) encodes gender: odd = male, even = female. The check digit (C) is a Luhn (mod-10) digit computed on the 10-digit form (without century). The normalized form is 12 digits: `199908072391`; `Format()` returns the 10-digit display form: `990807-2391`. Underlying parsing is provided by ActiveLogin.Identity.
 
+Accepted input: `YYYYMMDDNNNC`, `YYYYMMDD-NNNC`, `YYMMDDNNNC`, `YYMMDD-NNNC` and `YYMMDD+NNNC`, with surrounding whitespace trimmed. A 12-digit number with `+` is rejected because the four-digit year already states the century, as are inner spaces and separators other than the ASCII hyphen, such as an en dash. The check digit is always validated.
+
 Tests: [SwedishPersonalIdentityNumberTests.cs](test/Buildi.Primitives.Tests/Person/SwedishPersonalIdentityNumberTests.cs)
 
 - [Skatteverket - Personnummer](https://skatteverket.se/privat/folkbokforing/personnummer.4.3810a01c150939e893f18c29.html)
@@ -3919,15 +3921,18 @@ if (SwedishPersonalIdentityNumber.TryParse("990807-2391", out var pin))
 }
 
 SwedishPersonalIdentityNumber.IsValid("990807-2391");       // true
+SwedishPersonalIdentityNumber.IsValid("19990807-2391");     // true
+SwedishPersonalIdentityNumber.IsValid("19990807+2391");     // false
 SwedishPersonalIdentityNumber.Format("199908072391");       // "990807-2391"
 SwedishPersonalIdentityNumber.Normalize("990807-2391");     // "199908072391"
+SwedishPersonalIdentityNumber.Normalize("19990807-2391");   // "199908072391"
 ```
 
 #### Coordination number
 
 A Swedish coordination number (*samordningsnummer*) is assigned by Skatteverket to individuals not registered in the Swedish population register. It uses the same format as a personal identity number but with 60 added to the birth day.
 
-The format is identical to a personnummer except the day component has 60 added (e.g., day `04` becomes `64`, making the day range 61–91). The `RealDay` property extracts the actual birth day by subtracting 60. The check digit is computed identically using the Luhn algorithm. Underlying parsing is provided by ActiveLogin.Identity.
+The format is identical to a personnummer except the day component has 60 added (e.g., day `04` becomes `64`, making the day range 61–91). The `RealDay` property extracts the actual birth day by subtracting 60. The check digit is computed identically using the Luhn algorithm. Accepted input forms are the same as for a personal identity number, including `YYYYMMDD-NNNC`. Underlying parsing is provided by ActiveLogin.Identity.
 
 Tests: [SwedishCoordinationNumberTests.cs](test/Buildi.Primitives.Tests/Person/SwedishCoordinationNumberTests.cs)
 
@@ -3951,6 +3956,7 @@ if (SwedishCoordinationNumber.TryParse("680164-2395", out var cn))
 SwedishCoordinationNumber.IsValid("680164-2395");       // true
 SwedishCoordinationNumber.Format("196801642395");       // "680164-2395"
 SwedishCoordinationNumber.Normalize("680164-2395");     // "196801642395"
+SwedishCoordinationNumber.Normalize("19680164-2395");   // "196801642395"
 ```
 
 ---

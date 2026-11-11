@@ -59,7 +59,7 @@ public sealed class SwedishCoordinationNumber : IEquatable<SwedishCoordinationNu
         if (string.IsNullOrWhiteSpace(input)) return false;
         input = InputSanitization.SanitizeInput(input!).Trim();
         if (input.Length > MaxInputLength) return false;
-        if (!ACn.TryParse(input, out var cn)) return false;
+        if (!ACn.TryParse(SwedishPersonalNumberInput.RemoveTwelveDigitHyphen(input), out var cn)) return false;
         result = new SwedishCoordinationNumber(cn);
         return true;
     }
@@ -73,7 +73,8 @@ public sealed class SwedishCoordinationNumber : IEquatable<SwedishCoordinationNu
 
     public static bool IsValid(string? input) => TryParse(input, out _);
     /// <summary>
-    /// Returns the coordination number in display format, for example <c>19680164-2395</c>.
+    /// Returns the coordination number in 10-digit display format, for example <c>680164-2395</c>,
+    /// with <c>+</c> instead of <c>-</c> when the person is 100 years or older.
     /// Returns <see langword="null"/> when the input is invalid or empty.
     /// When <paramref name="fallbackToTrimmedInputWhenInvalid"/> is <see langword="true"/>, returns the trimmed original input instead of <see langword="null"/> for non-empty invalid input.
     /// </summary>
@@ -100,7 +101,8 @@ public sealed class SwedishCoordinationNumber : IEquatable<SwedishCoordinationNu
     /// </summary>
     public string ToNormalizedString() => Value;
     /// <summary>
-    /// Returns the coordination number in display format, for example <c>19680164-2395</c>.
+    /// Returns the coordination number in 10-digit display format, for example <c>680164-2395</c>,
+    /// with <c>+</c> instead of <c>-</c> when the person is 100 years or older.
     /// </summary>
     public override string ToString() => Formatted;
 
@@ -119,7 +121,7 @@ public sealed class SwedishCoordinationNumber : IEquatable<SwedishCoordinationNu
             return ValidationResult.Invalid(input, ValidationErrorReason.InputTooLong,
                 "Input contains too many characters.", "Värdet innehåller för många tecken.");
 
-        if (!ACn.TryParse(sanitized, out _))
+        if (!ACn.TryParse(SwedishPersonalNumberInput.RemoveTwelveDigitHyphen(sanitized), out _))
             return ValidationResult.Invalid(input, ValidationErrorReason.InvalidFormat,
                 "Invalid coordination number format.", "Ogiltigt format för samordningsnummer.");
 

@@ -54,7 +54,7 @@ public sealed class SwedishPersonalIdentityNumber : IEquatable<SwedishPersonalId
         if (string.IsNullOrWhiteSpace(input)) return false;
         input = InputSanitization.SanitizeInput(input!).Trim();
         if (input.Length > MaxInputLength) return false;
-        if (!APin.TryParse(input, out var pin)) return false;
+        if (!APin.TryParse(SwedishPersonalNumberInput.RemoveTwelveDigitHyphen(input), out var pin)) return false;
         result = new SwedishPersonalIdentityNumber(pin);
         return true;
     }
@@ -68,7 +68,8 @@ public sealed class SwedishPersonalIdentityNumber : IEquatable<SwedishPersonalId
 
     public static bool IsValid(string? input) => TryParse(input, out _);
     /// <summary>
-    /// Returns the personal identity number in display format, for example <c>19990807-2391</c>.
+    /// Returns the personal identity number in 10-digit display format, for example <c>990807-2391</c>,
+    /// or <c>900101+9802</c> when the person is 100 years or older.
     /// Returns <see langword="null"/> when the input is invalid or empty.
     /// When <paramref name="fallbackToTrimmedInputWhenInvalid"/> is <see langword="true"/>, returns the trimmed original input instead of <see langword="null"/> for non-empty invalid input.
     /// </summary>
@@ -95,7 +96,8 @@ public sealed class SwedishPersonalIdentityNumber : IEquatable<SwedishPersonalId
     /// </summary>
     public string ToNormalizedString() => Value;
     /// <summary>
-    /// Returns the personal identity number in display format, for example <c>19990807-2391</c>.
+    /// Returns the personal identity number in 10-digit display format, for example <c>990807-2391</c>,
+    /// or <c>900101+9802</c> when the person is 100 years or older.
     /// </summary>
     public override string ToString() => Formatted;
 
@@ -114,7 +116,7 @@ public sealed class SwedishPersonalIdentityNumber : IEquatable<SwedishPersonalId
             return ValidationResult.Invalid(input, ValidationErrorReason.InputTooLong,
                 "Input contains too many characters.", "Värdet innehåller för många tecken.");
 
-        if (!APin.TryParse(sanitized, out _))
+        if (!APin.TryParse(SwedishPersonalNumberInput.RemoveTwelveDigitHyphen(sanitized), out _))
             return ValidationResult.Invalid(input, ValidationErrorReason.InvalidFormat,
                 "Invalid personal identity number format.", "Ogiltigt format för personnummer.");
 
