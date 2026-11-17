@@ -4,7 +4,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.14.*" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.*" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Buildi.Primitives\Buildi.Primitives.csproj" />
